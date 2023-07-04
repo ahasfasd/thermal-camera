@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
   // /////////////////////////////////////////////////////
   
   image_transport::ImageTransport it(nh);
-  image_transport::Subscriber sub = it.subscribe("/usb_cam/image_raw", 10, imageCallback);
+  image_transport::Subscriber sub = it.subscribe("/processed_image", 10, imageCallback);
   image_pub = it.advertise("/thermal/pseudo_color", 10);    
   
   ros::spin();

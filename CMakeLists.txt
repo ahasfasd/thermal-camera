@@ -8,12 +8,16 @@ set(OpenCV_DIR /home/hy/Downloads/opencv_build/opencv/modules/highgui/include)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 set( CMAKE_CXX_FLAGS "-std=c++11" )
+
+
+	
 find_package(catkin REQUIRED COMPONENTS
   roscpp 
   message_generation
   sensor_msgs 
   cv_bridge 
   image_transport 
+  std_msgs
 )
 
 find_package(OpenCV REQUIRED COMPONENTS core highgui imgproc)
@@ -166,7 +170,6 @@ target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES}
 add_executable(snapshot src/ir_snapshot.cpp)
 target_link_libraries(snapshot ${catkin_LIBRARIES} 
                            	${OpenCV_LIBRARIES} )
-
 
 #############
 ## Install ##

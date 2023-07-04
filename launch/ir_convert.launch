@@ -1,4 +1,5 @@
 <launch>
+        <node pkg="ir_convert" type="thermal_temp.py" name="thermal_temp" output="screen"/>
 	<node pkg="ir_convert" type="ir_convert_node" name="ir_convert_node" output="screen">
 		<rosparam file="$(find ir_convert)/config/param.yaml" command="load"/>	
 	</node>

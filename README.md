@@ -9,6 +9,10 @@
 
 下载颜色转换包ir_convert, 下载后进入文件夹将文件中CMakeLists的set OpenCV_DIR 改为你自己opencv头文件所在的目录
 
+修改scr下的thermal_temp.py文件，将权重文件修改为主机对应的绝对位置
+
+修改thermal_temp.py的权限，设置为可执行文件, chmod +x thermal_temp.py
+
 
 编译ir_convert, 使用catkin_make 进行编译,编译完成后记得source一下
 
@@ -20,3 +24,4 @@
 
 
 2 ```roslaunch ir_convert ir_convert.launch```
+

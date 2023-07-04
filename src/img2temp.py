@@ -6,56 +6,64 @@ import matplotlib.pyplot as plt
 import numpy as np
 import io
 from math import sqrt, exp, log
+import cv2
 
 
 class Converter:
-    def __init__(self, img_file_dir, exiftool_path="exiftool"):
-        self.img_file_dir = img_file_dir
-        self.exiftool_path = exiftool_path
-
+    def __init__(self, cap):
+        #self.img_file_dir = img_file_dir
+        #self.exiftool_path = exiftool_path
+        success, pts = cap.read()
+        self.pts=pts
         self.thermal_np = self.get_raw_img()
-        self.meta = self.get_meta_data()
+        #self.meta = self.get_meta_data()
 
 
 
     def get_raw_img(self):
-        thermal_img_bytes = subprocess.check_output([self.exiftool_path, "-RawThermalImage", "-b", self.img_file_dir])
-        thermal_img_stream = io.BytesIO(thermal_img_bytes)
+        #thermal_img_bytes = subprocess.check_output([self.exiftool_path, "-RawThermalImage", "-b", self.img_file_dir])
+        #thermal_img_stream = io.BytesIO(thermal_img_bytes)
 
-        thermal_img = Image.open(thermal_img_stream)
-        thermal_np = np.array(thermal_img)
+        #thermal_img = Image.open(thermal_img_stream)
+        thermal_np = np.array(self.pts)
         # print("thermal_np.shape = ", thermal_np.shape)
         # plt.imshow(thermal_np)
         # plt.show()
         return thermal_np
 
-    def get_meta_data(self):
-        meta_json = subprocess.check_output(
-            [self.exiftool_path, self.img_file_dir, '-Emissivity', '-SubjectDistance', '-AtmosphericTemperature',
-             '-ReflectedApparentTemperature', '-IRWindowTemperature', '-IRWindowTransmission', '-RelativeHumidity',
-             '-PlanckR1', '-PlanckB', '-PlanckF', '-PlanckO', '-PlanckR2', '-j'])
-        meta = json.loads(meta_json.decode())[0]
-        print("meta thermal = ", meta)
-        return meta
+
+
+    #def get_meta_data(self):
+    #    meta_json = subprocess.check_output(
+    #        [self.exiftool_path, self.img_file_dir	, '-Emissivity', '-SubjectDistance', '-AtmosphericTemperature',
+    #         '-ReflectedApparentTemperature', '-IRWindowTemperature', '-IRWindowTransmission', '-RelativeHumidity',
+    #         '-PlanckR1', '-PlanckB', '-PlanckF', '-PlanckO', '-PlanckR2', '-j'])
+    #    meta = json.loads(meta_json.decode())[0]
+    #    print("meta thermal = ", meta)
+    #    return meta
 
     def convert(self):
-        if 'SubjectDistance' in self.meta:
-            subject_distance = Converter.extract_float(self.meta['SubjectDistance'])
-        else:
-            subject_distance = 1
-        raw2tempfunc = np.vectorize(lambda x: Converter.raw2temp(x, E=self.meta['Emissivity'], OD=subject_distance,
-                                                                    RTemp=Converter.extract_float(
-                                                                        self.meta['ReflectedApparentTemperature']),
-                                                                    ATemp=Converter.extract_float(
-                                                                        self.meta['AtmosphericTemperature']),
-                                                                    IRWTemp=Converter.extract_float(
-                                                                        self.meta['IRWindowTemperature']),
-                                                                    IRT=self.meta['IRWindowTransmission'],
-                                                                    RH=Converter.extract_float(
-                                                                        self.meta['RelativeHumidity']),
-                                                                    PR1=self.meta['PlanckR1'], PB=self.meta['PlanckB'],
-                                                                    PF=self.meta['PlanckF'],
-                                                                    PO=self.meta['PlanckO'], PR2=self.meta['PlanckR2']))
+        #if 'SubjectDistance' in self.meta:
+        #    subject_distance = Converter.extract_float(self.meta['SubjectDistance'])
+        #else:
+        #    subject_distance = 1
+        #raw2tempfunc = np.vectorize(lambda x: Converter.raw2temp(x, E=self.meta['Emissivity'], OD=subject_distance,
+        #                                                            RTemp=Converter.extract_float(
+        #                                                                self.meta['ReflectedApparentTemperature']),
+        #                                                            ATemp=Converter.extract_float(
+        #                                                                self.meta['AtmosphericTemperature']),
+        #                                                            IRWTemp=Converter.extract_float(
+        #                                                                self.meta['IRWindowTemperature']),
+        #                                                            IRT=self.meta['IRWindowTransmission'],
+        #                                                            RH=Converter.extract_float(
+        #                                                                self.meta['RelativeHumidity']),
+        #                                                            PR1=self.meta['PlanckR1'], PB=self.meta['PlanckB'],
+        #                                                            PF=self.meta['PlanckF'],
+        #                                                            PO=self.meta['PlanckO'], PR2=self.meta['PlanckR2']))
+                                                                    
+        
+        raw2tempfunc = np.vectorize(lambda x: Converter.raw2temp(x))
+        
         thermal_np = raw2tempfunc(self.thermal_np)
         return thermal_np
     
@@ -118,7 +126,8 @@ class Converter:
         return float(digits[0])
 
 if __name__ == "__main__":
-    cvt = Converter("../../../resources/0004.jpg")
+    cap = cv2.VideoCapture(2)
+    cvt = Converter(cap)
     thermal_img = cvt.convert()
     plt.subplot(121)
     plt.imshow(cvt.thermal_np)
